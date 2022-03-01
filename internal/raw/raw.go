@@ -8,12 +8,36 @@ import (
 	"golang.org/x/net/ipv4"
 	"math/rand"
 	"net"
+	"os"
 	"time"
 )
 
 func init() {
 	// initialize global pseudo random generator
 	rand.Seed(time.Now().Unix())
+}
+
+func DefaultBytes(maxBytes int64, description ...string) *progressbar.ProgressBar {
+	desc := ""
+	if len(description) > 0 {
+		desc = description[0]
+	}
+	bar := progressbar.NewOptions64(
+		maxBytes,
+		progressbar.OptionSetDescription(desc),
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionThrottle(1*time.Second),
+		progressbar.OptionShowCount(),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Printf("\n")
+		}),
+		progressbar.OptionSpinnerType(14),
+		progressbar.OptionFullWidth(),
+	)
+	bar.RenderBlank()
+	return bar
 }
 
 // StartFlooding does the heavy lifting, starts the flood
@@ -32,7 +56,8 @@ func StartFlooding(stopChan chan bool, destinationHost string, destinationPort, 
 
 	description := fmt.Sprintf("Flood is in progress, target=%s:%d, floodType=%s, payloadLength=%d",
 		destinationHost, destinationPort, floodType, payloadLength)
-	bar := progressbar.DefaultBytes(-1, description)
+
+	bar := DefaultBytes(-1, description)
 
 	payload := getRandomPayload(payloadLength)
 	srcIps := getIps()
