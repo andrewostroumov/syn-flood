@@ -30,6 +30,7 @@ func DefaultBytes(maxBytes int64, description ...string) *progressbar.ProgressBa
 		progressbar.OptionSetWidth(10),
 		progressbar.OptionThrottle(1*time.Second),
 		progressbar.OptionShowCount(),
+		progressbar.OptionUseANSICodes(true),
 		progressbar.OptionOnCompletion(func() {
 			fmt.Printf("\n")
 		}),
